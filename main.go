@@ -1,42 +1,37 @@
 package main
 
 import (
-   "fmt"
-   
-   bt "github.com/SakoDroid/telego"
-   cfg "github.com/SakoDroid/telego/configs"
-   objs "github.com/SakoDroid/telego/objects"
+	"log"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func main(){
+// APIKey for alfredbot from @botFather
+const token string = "5655859813:AAEm41cfxwd33OAMxOZgXHa9THBRu3ADm_E"
 
-   bot, err := bt.NewBot(cfg.Default("5655859813:AAEm41cfxwd33OAMxOZgXHa9THBRu3ADm_E"))
+func main() {
+	bot, err := tgbotapi.NewBotAPI(token)
+	if err != nil {
+		log.Panic(err)
+	}
 
-   if err == nil{
-       err == bot.Run()
-       if err == nil{
-           go start(bot)
-       }
-   }
-}
+	bot.Debug = true
 
-func start(bot *bt.Bot){
+	log.Printf("Authorized on account %s", bot.Self.UserName)
 
-    //The general update channel.
-    updateChannel := bot.GetUpdateChannel()
+	u := tgbotapi.NewUpdate(0)
+	u.Timeout = 60
 
-   //Adding a handler. Everytime the bot receives message "hi" in a private chat, it will respond "hi to you too".
-   bot.AddHandler("hi",func(u *objs.Update) {
-   	_,err := bot.SendMessage(u.Message.Chat.Id,"hi to you too","",u.Message.MessageId,false,false)
-   	if err != nil{
-   		fmt.Println(err)
-   	}
-   },"private")
+	updates := bot.GetUpdatesChan(u)
 
-   //Monitores any other update. (Updates that don't contain text message "hi" in a private chat)
-    for {
-        update := <- updateChannel
+	for update := range updates {
+		if update.Message != nil { // If we got a message
+			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
-       //Some processing on the update
-    }
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+			msg.ReplyToMessageID = update.Message.MessageID
+
+			bot.Send(msg)
+		}
+	}
 }

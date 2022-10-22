@@ -1,0 +1,5 @@
+features : 
+> Detect links and auto format them into clickable links. 
+> have to add simple games. 
+> group administration stuff. 
+> searching the web for meanings etc.., 
