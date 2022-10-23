@@ -4,9 +4,12 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
+
+//chat photo struct
 
 // Error Codes
 const (
@@ -49,10 +52,18 @@ func main() {
 	for update := range updates {
 		if update.Message != nil { // If we got a message
 			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
-
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+			var msg tgbotapi.MessageConfig
+			switch strings.ToLower(update.Message.Text) {
+			case "hi":
+				msg = tgbotapi.NewMessage(update.Message.Chat.ID, "Alfred at your service!")
+			case "what can you do ?":
+				msg = tgbotapi.NewMessage(update.Message.Chat.ID, "Right now nothing, but worry not soon I'll be ready.")
+			case "haren shylak":
+				msg = tgbotapi.NewMessage(update.Message.Chat.ID, "Snake")
+			default:
+				msg = tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+			}
 			msg.ReplyToMessageID = update.Message.MessageID
-
 			bot.Send(msg)
 		}
 	}
